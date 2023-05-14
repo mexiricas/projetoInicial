@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -36,13 +37,10 @@ public class InicialController {
     @GetMapping("/")
     public ModelAndView list(){
         log.info(dateUtil.formatLocalDateTimeToDatabaseStyle(LocalDateTime.now()));
-        Usuario usuario = new Usuario(33L,"Pedro");
-        usuarioRepository.save(usuario);
-        Acesso acesso = new Acesso("paginaInicial", java.time.LocalDateTime.now());
+        Acesso acesso = new Acesso("paginaInicial", LocalDateTime.now());
         acessoRepository.save(acesso);
         long paginaInicial = acessoRepository.countByPagina("paginaInicial");
 
-        AcessoPostRequestBody build = AcessoPostRequestBody.builder().idade(usuario.getIdade()).name(usuario.getName()).pagina(acesso.getPagina()).countAcessso(paginaInicial).build();
 
         List<Usuario> listaUsuario = usuarioRepository.findAll();
         ModelAndView modelAndView = new ModelAndView("usuarios-listar");
@@ -50,8 +48,8 @@ public class InicialController {
         modelAndView.addObject("listaUsuario", listaUsuario);
         return  modelAndView;
     }
-    @GetMapping(path = "/add")
-    public String adicionar(){
+    @GetMapping("/add")
+    public String addPage(Usuario usuario){
         return "usuarios-add";
     }
     @GetMapping(path = "/find")
@@ -59,4 +57,9 @@ public class InicialController {
         return ResponseEntity.ok(new ArrayList<String>());
     }
 
+    @PostMapping("/add")
+    public String adicionar(Usuario usuario){
+        usuarioRepository.save(usuario);
+        return "redirect:/usuario/";
+    }
 }
